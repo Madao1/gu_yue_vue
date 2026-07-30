@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EFF6FF;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#DBEAFE;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2563EB" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <circle cx="128" cy="128" r="110" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <circle cx="128" cy="128" r="88" fill="url(#circleGrad)"/>
+  
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 风扇护罩外圈 -->
+    <circle cx="128" cy="108" r="54" fill="none" stroke="#FFFFFF" stroke-width="3.5" opacity="0.6"/>
+    <circle cx="128" cy="108" r="48" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.4"/>
+    <!-- 护罩网格线 -->
+    <line x1="128" y1="54" x2="128" y2="60" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+    <line x1="128" y1="156" x2="128" y2="162" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+    <line x1="74" y1="108" x2="80" y2="108" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+    <line x1="176" y1="108" x2="182" y2="108" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+    <line x1="90" y1="70" x2="94" y2="74" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <line x1="162" y1="70" x2="158" y2="74" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <line x1="90" y1="146" x2="94" y2="142" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <line x1="162" y1="146" x2="158" y2="142" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <!-- 风扇叶片1 -->
+    <path d="M128 108 Q128 72, 148 62 Q162 56, 156 78 Q148 96, 128 108Z" fill="#FFFFFF" stroke="none" opacity="0.9"/>
+    <!-- 风扇叶片2 -->
+    <path d="M128 108 Q160 120, 168 138 Q174 156, 152 148 Q134 138, 128 108Z" fill="#FFFFFF" stroke="none" opacity="0.85"/>
+    <!-- 风扇叶片3 -->
+    <path d="M128 108 Q96 138, 78 132 Q56 124, 74 110 Q90 98, 128 108Z" fill="#FFFFFF" stroke="none" opacity="0.8"/>
+    <!-- 中心轮毂 -->
+    <circle cx="128" cy="108" r="12" fill="#FFFFFF" stroke="none"/>
+    <circle cx="128" cy="108" r="6" fill="#1E40AF" stroke="none"/>
+    <!-- 风扇底座 -->
+    <line x1="128" y1="162" x2="128" y2="176" stroke="#FFFFFF" stroke-width="4" opacity="0.7"/>
+    <rect x="108" y="172" width="40" height="10" rx="4" fill="#FFFFFF" stroke="none" opacity="0.5"/>
+    <!-- 旋转动感弧线 -->
+    <path d="M168 72 Q176 88, 172 108" stroke="#FFFFFF" stroke-width="2" opacity="0.3"/>
+    <path d="M64 96 Q60 112, 68 128" stroke="#FFFFFF" stroke-width="2" opacity="0.3"/>
+  </g>
+  <text x="128" y="196" text-anchor="middle" fill="#FFFFFF" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="17" font-weight="bold" opacity="0.9">风扇</text>
+
+</svg>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EFF6FF;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#DBEAFE;stop-opacity:1"/>
+    </linearGradient>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2563EB" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <circle cx="128" cy="128" r="110" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <circle cx="128" cy="128" r="88" fill="url(#circleGrad)"/>
+  
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 灯泡主体 -->
+    <path d="M128 52 Q104 52, 96 76 Q90 96, 104 112 Q112 122, 114 132 L142 132 Q144 122, 152 112 Q166 96, 160 76 Q152 52, 128 52Z" 
+          fill="#FFFFFF" stroke="none" opacity="0.95"/>
+    <!-- 灯泡底部螺口 -->
+    <rect x="114" y="132" width="28" height="8" rx="3" fill="none" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+    <rect x="116" y="140" width="24" height="6" rx="2" fill="none" stroke="#FFFFFF" stroke-width="2.5" opacity="0.7"/>
+    <rect x="118" y="146" width="20" height="5" rx="2" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+    <!-- 灯丝（隐约可见） -->
+    <path d="M118 106 Q124 96, 128 106 Q132 96, 138 106" fill="none" stroke="#1E40AF" stroke-width="1.5" opacity="0.4"/>
+    <!-- 光芒射线 -->
+    <line x1="128" y1="34" x2="128" y2="44" stroke="#FFFFFF" stroke-width="3" opacity="0.9"/>
+    <line x1="78" y1="62" x2="86" y2="70" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+    <line x1="178" y1="62" x2="170" y2="70" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+    <line x1="62" y1="96" x2="74" y2="100" stroke="#FFFFFF" stroke-width="3" opacity="0.7"/>
+    <line x1="194" y1="96" x2="182" y2="100" stroke="#FFFFFF" stroke-width="3" opacity="0.7"/>
+    <line x1="72" y1="132" x2="84" y2="128" stroke="#FFFFFF" stroke-width="2.5" opacity="0.6"/>
+    <line x1="184" y1="132" x2="172" y2="128" stroke="#FFFFFF" stroke-width="2.5" opacity="0.6"/>
+    <!-- 光芒小点 -->
+    <circle cx="128" cy="30" r="2.5" fill="#FFFFFF" stroke="none" opacity="0.7"/>
+    <circle cx="74" cy="58" r="2" fill="#FFFFFF" stroke="none" opacity="0.6"/>
+    <circle cx="182" cy="58" r="2" fill="#FFFFFF" stroke="none" opacity="0.6"/>
+  </g>
+  <text x="128" y="186" text-anchor="middle" fill="#FFFFFF" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="17" font-weight="bold" opacity="0.9">照明</text>
+
+</svg>

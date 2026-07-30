@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EFF6FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DBEAFE;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2563EB" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="128" cy="128" r="110" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- 主圆形 -->
+  <circle cx="128" cy="128" r="88" fill="url(#circleGrad)"/>
+
+  <!-- 图标内容 -->
+  
+  <!-- TSP - 总悬浮颗粒物沉降图标 -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 沉降平台/收集面 -->
+    <ellipse cx="128" cy="170" rx="56" ry="10" fill="#FFFFFF" stroke="none" opacity="0.25"/>
+    <ellipse cx="128" cy="168" rx="50" ry="8" fill="#FFFFFF" stroke="none" opacity="0.4"/>
+
+    <!-- 颗粒沉降层 -->
+    <ellipse cx="128" cy="162" rx="44" ry="7" fill="#FFFFFF" stroke="none" opacity="0.5"/>
+
+    <!-- 上方悬浮的大颗粒 -->
+    <circle cx="88" cy="82" r="5" fill="#FFFFFF" stroke="none" opacity="0.85"/>
+    <circle cx="148" cy="68" r="6" fill="#FFFFFF" stroke="none" opacity="0.9"/>
+    <circle cx="118" cy="56" r="4.5" fill="#FFFFFF" stroke="none" opacity="0.8"/>
+    <circle cx="162" cy="88" r="5" fill="#FFFFFF" stroke="none" opacity="0.85"/>
+    <circle cx="78" cy="108" r="4" fill="#FFFFFF" stroke="none" opacity="0.7"/>
+
+    <!-- 中等颗粒 -->
+    <circle cx="108" cy="92" r="3.5" fill="#FFFFFF" stroke="none" opacity="0.75"/>
+    <circle cx="138" cy="108" r="4" fill="#FFFFFF" stroke="none" opacity="0.8"/>
+    <circle cx="98" cy="68" r="3" fill="#FFFFFF" stroke="none" opacity="0.65"/>
+    <circle cx="172" cy="72" r="3.5" fill="#FFFFFF" stroke="none" opacity="0.7"/>
+
+    <!-- 下落的小颗粒 -->
+    <circle cx="128" cy="118" r="2.5" fill="#FFFFFF" stroke="none" opacity="0.6"/>
+    <circle cx="92" cy="138" r="2" fill="#FFFFFF" stroke="none" opacity="0.5"/>
+    <circle cx="158" cy="130" r="2.5" fill="#FFFFFF" stroke="none" opacity="0.55"/>
+    <circle cx="112" cy="148" r="2" fill="#FFFFFF" stroke="none" opacity="0.45"/>
+    <circle cx="142" cy="144" r="2" fill="#FFFFFF" stroke="none" opacity="0.4"/>
+
+    <!-- 下落轨迹线 -->
+    <line x1="128" y1="122" x2="128" y2="132" stroke="#FFFFFF" stroke-width="1.5" opacity="0.3"/>
+    <line x1="92" y1="142" x2="92" y2="150" stroke="#FFFFFF" stroke-width="1.5" opacity="0.25"/>
+    <line x1="158" y1="134" x2="158" y2="142" stroke="#FFFFFF" stroke-width="1.5" opacity="0.25"/>
+  </g>
+  <!-- TSP文字 -->
+  <text x="128" y="196" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="18" font-weight="bold" opacity="0.9">TSP</text>
+
+</svg>

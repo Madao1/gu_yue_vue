@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EFF6FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DBEAFE;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2563EB" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="128" cy="128" r="110" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- 主圆形 -->
+  <circle cx="128" cy="128" r="88" fill="url(#circleGrad)"/>
+
+  <!-- 图标内容 -->
+  
+  <!-- PM2.5 - 微小颗粒与空气 -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 空气波浪 -->
+    <path d="M60 130 Q80 115, 100 130 T140 130 T180 130" stroke-width="4" opacity="0.7"/>
+    <path d="M65 148 Q85 133, 105 148 T145 148 T185 148" stroke-width="3.5" opacity="0.5"/>
+    <!-- 微小颗粒 - PM2.5 -->
+    <circle cx="78" cy="122" r="2.5" fill="#FFFFFF" stroke="none"/>
+    <circle cx="110" cy="118" r="2" fill="#FFFFFF" stroke="none" opacity="0.8"/>
+    <circle cx="142" cy="124" r="2.5" fill="#FFFFFF" stroke="none"/>
+    <circle cx="168" cy="120" r="1.8" fill="#FFFFFF" stroke="none" opacity="0.7"/>
+    <circle cx="95" cy="140" r="2" fill="#FFFFFF" stroke="none" opacity="0.6"/>
+    <circle cx="128" cy="138" r="2.5" fill="#FFFFFF" stroke="none" opacity="0.8"/>
+    <circle cx="158" cy="142" r="2" fill="#FFFFFF" stroke="none" opacity="0.6"/>
+    <!-- 更小的颗粒 -->
+    <circle cx="88" cy="108" r="1.5" fill="#FFFFFF" stroke="none" opacity="0.5"/>
+    <circle cx="155" cy="108" r="1.5" fill="#FFFFFF" stroke="none" opacity="0.5"/>
+    <circle cx="120" cy="108" r="1.2" fill="#FFFFFF" stroke="none" opacity="0.4"/>
+  </g>
+  <!-- PM2.5 文字 -->
+  <text x="128" y="182" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="16" font-weight="bold" opacity="0.9">PM2.5</text>
+
+</svg>

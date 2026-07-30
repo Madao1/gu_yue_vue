@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#EFF6FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DBEAFE;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563EB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E40AF;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#2563EB" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="128" cy="128" r="110" fill="url(#bgGrad)" filter="url(#shadow)"/>
+
+  <!-- 主圆形 -->
+  <circle cx="128" cy="128" r="88" fill="url(#circleGrad)"/>
+
+  <!-- 图标内容 -->
+  
+  <!-- 气压 - 气压计图标 -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 外圆环 -->
+    <circle cx="128" cy="118" r="56" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+    <circle cx="128" cy="118" r="50" fill="none" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+
+    <!-- 刻度标记 -->
+    <!-- 主刻度 -->
+    <line x1="128" y1="58" x2="128" y2="68" stroke="#FFFFFF" stroke-width="3" opacity="0.9"/>
+    <line x1="128" y1="168" x2="128" y2="178" stroke="#FFFFFF" stroke-width="3" opacity="0.9"/>
+    <line x1="68" y1="118" x2="78" y2="118" stroke="#FFFFFF" stroke-width="3" opacity="0.9"/>
+    <line x1="178" y1="118" x2="188" y2="118" stroke="#FFFFFF" stroke-width="3" opacity="0.9"/>
+
+    <!-- 副刻度 -->
+    <line x1="86" y1="76" x2="92" y2="82" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+    <line x1="164" y1="76" x2="170" y2="82" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+    <line x1="86" y1="160" x2="92" y2="154" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+    <line x1="164" y1="160" x2="170" y2="154" stroke="#FFFFFF" stroke-width="2" opacity="0.6"/>
+
+    <!-- 小刻度 -->
+    <line x1="100" y1="64" x2="104" y2="70" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <line x1="152" y1="64" x2="156" y2="70" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <line x1="100" y1="172" x2="104" y2="166" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+    <line x1="152" y1="172" x2="156" y2="166" stroke="#FFFFFF" stroke-width="1.5" opacity="0.4"/>
+
+    <!-- 指针 -->
+    <line x1="128" y1="118" x2="152" y2="78" stroke="#FFFFFF" stroke-width="4" opacity="0.95"/>
+    <!-- 指针尾部 -->
+    <line x1="128" y1="118" x2="118" y2="134" stroke="#FFFFFF" stroke-width="2.5" opacity="0.6"/>
+
+    <!-- 中心圆点 -->
+    <circle cx="128" cy="118" r="7" fill="#FFFFFF" stroke="none"/>
+    <circle cx="128" cy="118" r="3.5" fill="#2563EB" stroke="none"/>
+
+    <!-- 底部装饰弧线 -->
+    <path d="M98 170 Q128 182, 158 170" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.5"/>
+  </g>
+  <!-- 气压文字 -->
+  <text x="128" y="202" text-anchor="middle" fill="#FFFFFF" font-family="Arial, 'Microsoft YaHei', sans-serif" font-size="17" font-weight="bold" opacity="0.9">气压</text>
+
+</svg>

@@ -1,24 +1,30 @@
 # gu_yue_vue
 
-## Project setup
-```
+220kV 古苑变建筑工程大屏 UI 的 Vue 2 重写版本。
+
+## 技术栈
+
+- Vue 2.7
+- Vue Router 3
+- Vite 5
+- ECharts 5
+- ApexCharts 3
+
+## 启动
+
+```bash
 npm install
+npm run dev
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## 构建
 
-### Compiles and minifies for production
-```
+```bash
 npm run build
 ```
 
-### Lints and fixes files
-```
-npm run lint
-```
+## 页面
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- `/` — 数据大屏首页
+- `/weather` — 施工现场晴雨表
+- `/detail/:type` — 环境/设备详情（1-6 分别对应温度、湿度、CO₂、PM2.5、风速、化学气体）
