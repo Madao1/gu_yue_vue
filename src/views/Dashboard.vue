@@ -1,15 +1,16 @@
 <template>
   <div class="data">
     <LayoutHeader />
+    <div v-if="statusText" class="connection-status" :class="statusClass">{{ statusText }}</div>
     <div class="data-content">
       <!-- 左侧 -->
       <div class="con-left fl">
         <div class="left-top">
           <BoxPanel title="实时环境状况" class="info">
-            <EnvStatus @open-detail="openDetail" />
+            <EnvStatus :environment="environment" @open-detail="openDetail" />
           </BoxPanel>
           <BoxPanel title="环境设备状况" class="top-bottom">
-            <EquipStatus @open-detail="openDetail" />
+            <EquipStatus :devices="devices" @open-detail="openDetail" />
           </BoxPanel>
         </div>
       </div>
@@ -50,6 +51,8 @@
 </template>
 
 <script>
+import { getCurrentSnapshot, isCurrentSnapshot } from '@/api/environment'
+import { createEnvironmentClient } from '@/api/websocket'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import BoxPanel from '@/components/BoxPanel.vue'
 import EnvStatus from '@/components/EnvStatus.vue'
@@ -82,10 +85,64 @@ export default {
       tempOption: getTempOption(),
       noiseOption: getNoiseOption(),
       modalVisible: false,
-      modalType: '1'
+      modalType: '1',
+      environment: null,
+      devices: null,
+      loading: true,
+      error: null,
+      connected: false,
+      client: null
+    }
+  },
+  computed: {
+    statusText() {
+      if (this.loading) return '数据加载中...'
+      if (this.error) return this.error
+      return this.connected ? '实时数据已连接' : '实时数据已断开'
+    },
+    statusClass() {
+      if (this.loading) return 'loading'
+      if (this.error) return 'error'
+      return this.connected ? 'ok' : 'error'
+    }
+  },
+  mounted() {
+    this.loadSnapshot()
+    this.client = createEnvironmentClient({
+      onMessage: this.handleSnapshot,
+      onConnect: () => { this.connected = true; this.error = null },
+      onDisconnect: () => { this.connected = false },
+      onError: (err) => { this.error = err.message }
+    })
+    this.client.start()
+  },
+  beforeDestroy() {
+    if (this.client) {
+      this.client.stop()
     }
   },
   methods: {
+    async loadSnapshot() {
+      this.loading = true
+      this.error = null
+      try {
+        const snapshot = await getCurrentSnapshot()
+        this.handleSnapshot(snapshot)
+      } catch (e) {
+        this.error = e.message || '数据加载失败'
+      } finally {
+        this.loading = false
+      }
+    },
+    handleSnapshot(snapshot) {
+      if (!isCurrentSnapshot(snapshot)) {
+        this.error = '收到无效的环境数据'
+        return
+      }
+      this.environment = snapshot.environment
+      this.devices = snapshot.devices
+      this.error = null
+    },
     openDetail(type) {
       this.modalType = String(type)
       this.modalVisible = true
@@ -143,5 +200,30 @@ export default {
   line-height: 1;
   cursor: pointer;
   border: none;
+}
+
+.connection-status {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 1001;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.connection-status.ok {
+  background: rgba(40, 167, 69, 0.8);
+}
+
+.connection-status.loading {
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+}
+
+.connection-status.error {
+  background: rgba(220, 53, 69, 0.8);
 }
 </style>

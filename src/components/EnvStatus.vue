@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <li v-for="(item, index) in list" :key="index" @click="openDetail(index + 1)">
+    <li v-for="(item, index) in displayList" :key="item.key" @click="openDetail(index + 1)">
       <img :src="item.icon" height="56" :alt="item.label" />
       <span>{{ item.value }}</span>
     </li>
@@ -10,25 +10,54 @@
 <script>
 export default {
   name: 'EnvStatus',
+  props: {
+    environment: {
+      type: Object,
+      default: null
+    }
+  },
   data() {
     return {
-      list: [
-        { icon: '/icons/icon_noise.png', label: '噪声', value: '噪声：52db' },
-        { icon: '/icons/icon_pm10.png', label: 'PM10', value: 'PM10：21μg/m³' },
-        { icon: '/icons/icon_pm25.png', label: 'PM2.5', value: 'MP2.5：35μg/m³' },
-        { icon: '/icons/icon_tsp.png', label: 'TSP', value: 'TSP：0.12 mg/m³' },
-        { icon: '/icons/icon_wind_speed.png', label: '风速', value: '风速：5m/ms' },
-        { icon: '/icons/icon_wind_direction.png', label: '风向', value: '风向：东南 SE' },
-        { icon: '/icons/icon_rainfall.png', label: '雨量', value: '雨量：2mm/ms' },
-        { icon: '/icons/icon_pressure.png', label: '气压', value: '气压：101.325 kPa' },
-        { icon: '/icons/icon_temperature.png', label: '温度', value: '温度：29 °' },
-        { icon: '/icons/icon_humidity.png', label: '湿度', value: '湿度：75%RH' },
-        { icon: '/icons/icon_smoked.png', label: '烟雾1', value: '烟雾1：正常' },
-        { icon: '/icons/icon_smoked.png', label: '烟雾2', value: '烟雾2：正常' }
+      items: [
+        { icon: '/icons/icon_noise.png', label: '噪声', key: 'noise', unit: 'dB', numeric: true },
+        { icon: '/icons/icon_pm10.png', label: 'PM10', key: 'pm10', unit: 'μg/m³', numeric: true },
+        { icon: '/icons/icon_pm25.png', label: 'PM2.5', key: 'pm25', unit: 'μg/m³', numeric: true },
+        { icon: '/icons/icon_tsp.png', label: 'TSP', key: 'tsp', unit: 'mg/m³', numeric: true },
+        { icon: '/icons/icon_wind_speed.png', label: '风速', key: 'windSpeed', unit: 'm/s', numeric: true },
+        { icon: '/icons/icon_wind_direction.png', label: '风向', key: 'windDirection', unit: '' },
+        { icon: '/icons/icon_rainfall.png', label: '雨量', key: 'precipitation', unit: 'mm', numeric: true },
+        { icon: '/icons/icon_pressure.png', label: '气压', key: 'airPressure', unit: 'kPa', numeric: true },
+        { icon: '/icons/icon_temperature.png', label: '温度', key: 'temperature', unit: '°C', numeric: true },
+        { icon: '/icons/icon_humidity.png', label: '湿度', key: 'humidity', unit: '%RH', numeric: true },
+        { icon: '/icons/icon_smoked.png', label: '烟雾1', key: 'smoke1', unit: '' },
+        { icon: '/icons/icon_smoked.png', label: '烟雾2', key: 'smoke2', unit: '' }
       ]
     }
   },
+  computed: {
+    displayList() {
+      return this.items.map(item => ({
+        ...item,
+        value: this.format(item)
+      }))
+    }
+  },
   methods: {
+    format(item) {
+      const raw = this.environment ? this.environment[item.key] : null
+      if (raw == null) {
+        return `${item.label}：--`
+      }
+      if (item.key === 'windDirection') {
+        return `${item.label}：${raw}`
+      }
+      const value = item.numeric ? this.formatNumber(raw) : raw
+      return `${item.label}：${value}${item.unit}`
+    },
+    formatNumber(value) {
+      const number = Number(value)
+      return Number.isFinite(number) ? number.toFixed(2) : value
+    },
     openDetail(id) {
       this.$emit('open-detail', id)
     }
