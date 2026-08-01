@@ -1,7 +1,7 @@
 <template>
   <div class="data-title">
     <div class="timeti">{{ nowTime }}</div>
-    <div class="title-center">正远智慧绿色工地管控系统</div>
+    <div class="title-center">智慧绿色工地管控系统</div>
     <div class="pdfmc">
       <img src="/icons/blue.png" alt="" />220kV古苑变建筑工程
     </div>
