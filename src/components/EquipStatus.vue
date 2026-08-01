@@ -1,6 +1,12 @@
 <template>
   <ul>
-    <li v-for="(item, index) in displayList" :key="item.key" @click="openDetail(index)">
+    <li
+      v-for="item in displayList"
+      :key="item.key"
+      :class="{ disabled: !item.toggleable || pendingKey }"
+      :aria-disabled="!item.toggleable || Boolean(pendingKey)"
+      @click="toggleDevice(item)"
+    >
       <img :src="item.icon" height="56" :alt="item.label" />
       <span>{{ item.value }}</span>
     </li>
@@ -17,6 +23,10 @@ export default {
     devices: {
       type: Object,
       default: null
+    },
+    pendingKey: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -37,11 +47,20 @@ export default {
     displayList() {
       return this.items.map(item => ({
         ...item,
+        toggleable: this.isToggleable(item.key),
         value: `${item.label}：${this.formatDevice(item.key)}`
       }))
     }
   },
   methods: {
+    isToggleable(key) {
+      const raw = this.devices ? this.devices[key] : null
+      if (raw == null) {
+        return false
+      }
+      const value = String(raw).toLowerCase()
+      return ON_VALUES.includes(value) || OFF_VALUES.includes(value)
+    },
     formatDevice(key) {
       const raw = this.devices ? this.devices[key] : null
       if (raw == null) {
@@ -56,8 +75,11 @@ export default {
       }
       return raw
     },
-    openDetail(id) {
-      this.$emit('open-detail', id)
+    toggleDevice(item) {
+      if (!item.toggleable || this.pendingKey) {
+        return
+      }
+      this.$emit('toggle-device', item.key)
     }
   }
 }
@@ -83,5 +105,8 @@ li span {
   font-size: 14px;
   color: #fff;
   opacity: .8;
+}
+li.disabled {
+  cursor: default;
 }
 </style>

@@ -10,7 +10,11 @@
             <EnvStatus :environment="environment" @open-detail="openDetail" />
           </BoxPanel>
           <BoxPanel title="环境设备状况" class="top-bottom">
-            <EquipStatus :devices="devices" @open-detail="openDetail" />
+            <EquipStatus
+              :devices="devices"
+              :pending-key="deviceTogglePending"
+              @toggle-device="toggleDevice"
+            />
           </BoxPanel>
         </div>
       </div>
@@ -51,7 +55,7 @@
 </template>
 
 <script>
-import { getCurrentSnapshot, isCurrentSnapshot } from '@/api/environment'
+import { getCurrentSnapshot, isCurrentSnapshot, toggleDevice as requestDeviceToggle } from '@/api/environment'
 import { createEnvironmentClient } from '@/api/websocket'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import BoxPanel from '@/components/BoxPanel.vue'
@@ -91,7 +95,8 @@ export default {
       loading: true,
       error: null,
       connected: false,
-      client: null
+      client: null,
+      deviceTogglePending: ''
     }
   },
   computed: {
@@ -142,6 +147,21 @@ export default {
       this.environment = snapshot.environment
       this.devices = snapshot.devices
       this.error = null
+    },
+    async toggleDevice(deviceKey) {
+      if (this.deviceTogglePending) {
+        return
+      }
+
+      this.deviceTogglePending = deviceKey
+      this.error = null
+      try {
+        this.devices = await requestDeviceToggle(deviceKey)
+      } catch (e) {
+        this.error = e.message || '设备操作失败'
+      } finally {
+        this.deviceTogglePending = ''
+      }
     },
     openDetail(type) {
       this.modalType = String(type)

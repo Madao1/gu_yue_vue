@@ -30,3 +30,21 @@ export async function getCurrentSnapshot() {
 
   return body.data
 }
+
+export async function toggleDevice(deviceKey) {
+  const res = await fetch(`/api/environment/devices/${encodeURIComponent(deviceKey)}/toggle`, {
+    method: 'POST'
+  })
+
+  const body = await res.json()
+
+  if (!res.ok || !body || body.code !== 200) {
+    throw new Error(body && body.message ? body.message : `请求失败：HTTP ${res.status}`)
+  }
+
+  if (!body.data || typeof body.data !== 'object' || Array.isArray(body.data)) {
+    throw new Error('设备状态响应格式不正确')
+  }
+
+  return body.data
+}
