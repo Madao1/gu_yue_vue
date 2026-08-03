@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <li v-for="(item, index) in displayList" :key="item.key" @click="openDetail(index + 1)">
+    <li v-for="(item, index) in displayList" :key="item.key" @click="openDetail(item.key)">
       <img :src="item.icon" height="56" :alt="item.label" />
       <span>{{ item.value }}</span>
     </li>
@@ -23,6 +23,7 @@ export default {
         { icon: '/icons/icon_pm10.png', label: 'PM10', key: 'pm10', unit: 'μg/m³', numeric: true },
         { icon: '/icons/icon_pm25.png', label: 'PM2.5', key: 'pm25', unit: 'μg/m³', numeric: true },
         { icon: '/icons/icon_tsp.png', label: 'TSP', key: 'tsp', unit: 'mg/m³', numeric: true },
+        { icon: '/icons/icon_tsp.png', label: '扬尘', key: 'dust', unit: 'mg/m³', numeric: true },
         { icon: '/icons/icon_wind_speed.png', label: '风速', key: 'windSpeed', unit: 'm/s', numeric: true },
         { icon: '/icons/icon_wind_direction.png', label: '风向', key: 'windDirection', unit: '' },
         { icon: '/icons/icon_rainfall.png', label: '雨量', key: 'precipitation', unit: 'mm', numeric: true },
@@ -58,8 +59,8 @@ export default {
       const number = Number(value)
       return Number.isFinite(number) ? number.toFixed(2) : value
     },
-    openDetail(id) {
-      this.$emit('open-detail', id)
+    openDetail(key) {
+      this.$emit('open-detail', key)
     }
   }
 }

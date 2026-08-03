@@ -22,7 +22,7 @@
 
           <div v-show="activeTab === 1" class="content-2">
             <h2>
-              <h3 v-for="(v, i) in config.values" :key="i">{{ v }}</h3>
+              <h3 v-for="(v, i) in currentValues" :key="i">{{ v }}</h3>
             </h2>
           </div>
 
@@ -35,7 +35,7 @@
                     <th v-for="c in 5" :key="c">日期</th>
                     <th v-for="c in 5" :key="'t-' + c">发生时间</th>
                     <th v-for="c in 5" :key="'s-' + c">感应器号</th>
-                    <th v-for="c in 5" :key="'v-' + c">{{ metricName }}</th>
+                    <th v-for="c in 5" :key="'v-' + c">{{ config.metricName }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { getDetailConfig } from '@/data/detailData'
+import { getDetailConfig, resolveMetricKey } from '@/data/detailData'
 import ApexChartDetail from '@/components/ApexChartDetail.vue'
 
 export default {
@@ -67,7 +67,11 @@ export default {
   props: {
     type: {
       type: String,
-      default: '1'
+      default: 'temperature'
+    },
+    environment: {
+      type: Object,
+      default: null
     }
   },
   data() {
@@ -80,18 +84,35 @@ export default {
       return getDetailConfig(this.type)
     },
     chartMin() {
-      return this.type === '2' ? 40 : this.type === '3' ? 1 : 30
+      return this.config.chart ? this.config.chart.min : 30
     },
     chartMax() {
-      return this.type === '2' ? 90 : this.type === '3' ? 2 : 180
+      return this.config.chart ? this.config.chart.max : 180
     },
-    metricName() {
-      const names = { '1': '温度', '2': '湿度', '3': '二氧化碳', '4': 'PM2.5', '5': '风速', '6': '气体' }
-      return names[this.type] || '数值'
+    metricKey() {
+      return resolveMetricKey(this.type)
+    },
+    currentValue() {
+      if (!this.environment) {
+        return null
+      }
+      const key = this.metricKey || this.type
+      const raw = this.environment[key]
+      if (raw == null) {
+        return null
+      }
+      if (this.config.numeric && this.config.decimals != null) {
+        const number = Number(raw)
+        return Number.isFinite(number) ? number.toFixed(this.config.decimals) : raw
+      }
+      return raw
+    },
+    currentValues() {
+      const display = this.currentValue == null ? '--' : String(this.currentValue) + (this.config.unit || '')
+      return [display]
     },
     sampleValue() {
-      const samples = { '1': '12', '2': '55', '3': '1.29', '4': '35', '5': '5', '6': '0.00' }
-      return samples[this.type] || '0'
+      return this.currentValue == null ? '--' : String(this.currentValue)
     }
   }
 }

@@ -48,7 +48,7 @@
     <div v-if="modalVisible" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <button class="close-btn" @click="closeModal">×</button>
-        <DetailModal :type="modalType" />
+        <DetailModal :type="modalType" :environment="environment" />
       </div>
     </div>
   </div>
@@ -89,7 +89,7 @@ export default {
       tempOption: getTempOption(),
       noiseOption: getNoiseOption(),
       modalVisible: false,
-      modalType: '1',
+      modalType: 'temperature',
       environment: null,
       devices: null,
       loading: true,
@@ -164,7 +164,7 @@ export default {
       }
     },
     openDetail(type) {
-      this.modalType = String(type)
+      this.modalType = type
       this.modalVisible = true
     },
     closeModal() {
