@@ -1,50 +1,88 @@
 <template>
   <div class="apex-wrap">
-    <div ref="areaChart" class="chart-area"></div>
-    <div ref="barChart" class="chart-bar"></div>
+    <div v-if="hasData" ref="areaChart" class="chart-area"></div>
+    <div v-if="hasData" ref="barChart" class="chart-bar"></div>
+    <div v-else class="chart-empty">暂无历史数据</div>
   </div>
 </template>
 
 <script>
 import ApexCharts from 'apexcharts'
 
-function generateDayWiseTimeSeries(baseval, count, yrange) {
-  const series = []
-  let i = 0
-  while (i < count) {
-    const y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min
-    series.push([baseval, y])
-    baseval += 86400000
-    i++
-  }
-  return series
-}
-
 export default {
   name: 'ApexChartDetail',
   props: {
+    // 历史数据：[ [时间戳毫秒, 数值], ... ]
+    data: {
+      type: Array,
+      default: () => []
+    },
     min: { type: Number, default: 30 },
     max: { type: Number, default: 180 }
   },
   data() {
     return {
       areaChart: null,
-      barChart: null
+      barChart: null,
+      chartRenderId: 0
+    }
+  },
+  computed: {
+    hasData() {
+      return this.points.length > 0
+    },
+    // 有效数据点：将 ISO 时间串转换为毫秒时间戳
+    points() {
+      if (!Array.isArray(this.data) || this.data.length === 0) {
+        return []
+      }
+      return this.data
+        .map(([time, value]) => {
+          const ts = time instanceof Date ? time.getTime() : new Date(String(time)).getTime()
+          const v = Number(value)
+          return Number.isFinite(ts) && Number.isFinite(v) ? [ts, v] : null
+        })
+        .filter(Boolean)
+    }
+  },
+  watch: {
+    points() {
+      this.render()
     }
   },
   mounted() {
     this.render()
   },
   beforeDestroy() {
+    this.chartRenderId += 1
     if (this.areaChart) this.areaChart.destroy()
     if (this.barChart) this.barChart.destroy()
+    this.areaChart = null
+    this.barChart = null
   },
   methods: {
     render() {
-      const data = generateDayWiseTimeSeries(new Date('01 June 2020').getTime(), 365, {
-        min: this.min,
-        max: this.max
-      })
+      const renderId = ++this.chartRenderId
+      if (this.areaChart) {
+        this.areaChart.destroy()
+        this.areaChart = null
+      }
+      if (this.barChart) {
+        this.barChart.destroy()
+        this.barChart = null
+      }
+
+      const data = this.points
+      if (data.length === 0) {
+        return
+      }
+
+      // 动态 brush 初始选区：取数据最后 25%
+      const firstTime = data[0][0]
+      const lastTime = data[data.length - 1][0]
+      const range = lastTime - firstTime
+      const selectionMin = range > 0 ? lastTime - range * 0.25 : firstTime
+      const selectionMax = lastTime
 
       const options1 = {
         chart: {
@@ -70,7 +108,11 @@ export default {
         series: [{ data }],
         tooltip: { theme: 'dark' },
         xaxis: { type: 'datetime' },
-        yaxis: { min: 0, tickAmount: 4 }
+        yaxis: {
+          min: this.min,
+          max: this.max,
+          tickAmount: 4
+        }
       }
 
       const options2 = {
@@ -83,8 +125,8 @@ export default {
           selection: {
             fill: { color: '#fff', opacity: 0.4 },
             xaxis: {
-              min: new Date('1 Jul 2020 10:00:00').getTime(),
-              max: new Date('30 Jul 2020 10:00:00').getTime()
+              min: selectionMin,
+              max: selectionMax
             }
           }
         },
@@ -97,10 +139,20 @@ export default {
         yaxis: { tickAmount: 2 }
       }
 
-      this.areaChart = new ApexCharts(this.$refs.areaChart, options1)
-      this.barChart = new ApexCharts(this.$refs.barChart, options2)
-      this.areaChart.render()
-      this.barChart.render()
+      this.$nextTick(() => {
+        if (renderId !== this.chartRenderId) {
+          return
+        }
+        const areaElement = this.$refs.areaChart
+        const barElement = this.$refs.barChart
+        if (!areaElement || !barElement) {
+          return
+        }
+        this.areaChart = new ApexCharts(areaElement, options1)
+        this.barChart = new ApexCharts(barElement, options2)
+        this.areaChart.render()
+        this.barChart.render()
+      })
     }
   }
 }
@@ -115,5 +167,13 @@ export default {
 .chart-area,
 .chart-bar {
   width: 100%;
+}
+.chart-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bac0c0;
+  font-size: 16px;
 }
 </style>

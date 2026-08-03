@@ -17,7 +17,21 @@
 
         <div class="content">
           <div v-show="activeTab === 0" class="content-1">
-            <ApexChartDetail :min="chartMin" :max="chartMax" />
+            <div v-if="!config.numeric" class="chart-placeholder">
+              该指标为状态量，暂无历史趋势图
+            </div>
+            <div v-else-if="historyLoading" class="chart-placeholder">
+              历史数据加载中...
+            </div>
+            <div v-else-if="historyError" class="chart-placeholder">
+              {{ historyError }}
+            </div>
+            <ApexChartDetail
+              v-else
+              :data="historyChartData"
+              :min="chartMin"
+              :max="chartMax"
+            />
           </div>
 
           <div v-show="activeTab === 1" class="content-2">
@@ -57,6 +71,7 @@
 
 <script>
 import { getDetailConfig, resolveMetricKey } from '@/data/detailData'
+import { getEnvironmentHistory } from '@/api/environment'
 import ApexChartDetail from '@/components/ApexChartDetail.vue'
 
 export default {
@@ -76,10 +91,28 @@ export default {
   },
   data() {
     return {
-      activeTab: 0
+      activeTab: 0,
+      historyPoints: [],
+      historyLoading: false,
+      historyError: '',
+      historyRequestId: 0
     }
   },
+  watch: {
+    metricKey() {
+      this.loadHistory()
+    }
+  },
+  created() {
+    this.loadHistory()
+  },
+  beforeDestroy() {
+    this.historyRequestId += 1
+  },
   computed: {
+    historyChartData() {
+      return this.historyPoints.map(point => [point.timestamp, point.value])
+    },
     config() {
       return getDetailConfig(this.type)
     },
@@ -113,6 +146,38 @@ export default {
     },
     sampleValue() {
       return this.currentValue == null ? '--' : String(this.currentValue)
+    }
+  },
+  methods: {
+    async loadHistory() {
+      const requestId = ++this.historyRequestId
+      const key = this.metricKey
+      if (!key || !this.config.numeric) {
+        this.historyPoints = []
+        this.historyError = ''
+        this.historyLoading = false
+        return
+      }
+
+      this.historyLoading = true
+      this.historyError = ''
+      try {
+        const data = await getEnvironmentHistory(key, { limit: 2000 })
+        if (requestId !== this.historyRequestId) {
+          return
+        }
+        this.historyPoints = data.points || []
+      } catch (err) {
+        if (requestId !== this.historyRequestId) {
+          return
+        }
+        this.historyPoints = []
+        this.historyError = err && err.message ? err.message : '历史数据加载失败'
+      } finally {
+        if (requestId === this.historyRequestId) {
+          this.historyLoading = false
+        }
+      }
     }
   }
 }
@@ -183,6 +248,19 @@ export default {
   padding: 15px;
   box-sizing: border-box;
   overflow: auto;
+}
+
+.content-1 {
+  height: 100%;
+}
+
+.chart-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bac0c0;
+  font-size: 16px;
 }
 
 .content-2 h2 {
