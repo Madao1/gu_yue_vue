@@ -152,14 +152,18 @@ body {
 
 .data>.data-content>.con-left>.left-top {
     width: 100%;
-    height: calc(75% - 15px);
+    height: 100%;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 环境状况 */
 .data>.data-content>.con-left>.left-top>.info {
-    height: 77%;
+    height: auto;
     width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 .info-main li {
@@ -220,8 +224,10 @@ body {
 
 /* 左2框架环境设备 */
 .con-left>.left-top>.top-bottom {
-    height: calc(63% - 20px);
+    height: auto;
     width: 100%;
+    flex: 0 0 31%;
+    min-height: 0;
 }
 
 /* 左3框架-备用 */

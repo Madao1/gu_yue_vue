@@ -110,7 +110,8 @@ export default {
 
 <style scoped>
 .weather-calendar {
-  width: 900px;
+  width: 100%;
+  max-width: 900px;
   height: 500px;
   border-radius: 8px;
   padding: 15px 20px;

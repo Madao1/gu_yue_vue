@@ -96,11 +96,15 @@ li:nth-child(-n + 9) {
 }
 li img {
   display: block;
-  margin: 18px auto 5px auto;
+  height: 48px;
+  margin: 8px auto 3px auto;
 }
 li span {
-  font-size: 14px;
+  display: block;
+  font-size: 13px;
+  line-height: 18px;
   color: #fff;
   opacity: .8;
+  white-space: nowrap;
 }
 </style>

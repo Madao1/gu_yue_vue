@@ -72,7 +72,7 @@ gu_yue_vue/
     │   ├── SafetyDays.vue  # 安全运行天数倒计时显示
     │   ├── WeatherCalendar.vue # 施工现场晴雨表日历（随机演示数据）
     │   ├── LayoutHeader.vue # 顶部标题栏（实时时钟、项目名称）
-    │   ├── ApexChartDetail.vue # 详情弹窗 ApexCharts 图表（随机演示数据）
+    │   ├── ApexChartDetail.vue # 详情弹窗历史数据 ApexCharts 图表
     │   ├── HelloWorld.vue  # ⚠️ 脚手架遗留组件（未使用）
     ├── data/
     │   └── detailData.js   # 详情弹窗 6 类指标的静态配置
@@ -86,7 +86,7 @@ gu_yue_vue/
     └── views/
         ├── Dashboard.vue   # 大屏首页（三栏布局）
         ├── WeatherPage.vue # 晴雨表页面
-        ├── DetailModal.vue # 详情弹窗（页签：图表 / 数值 / 记录表）
+        ├── DetailModal.vue # 详情弹窗（仅历史数据图表）
         ├── HomeView.vue    # ⚠️ 脚手架遗留页面（未使用）
         └── AboutView.vue   # ⚠️ 脚手架遗留页面（未使用）
 ```
@@ -115,7 +115,7 @@ gu_yue_vue/
 ### 4. 详情弹窗（`/detail/:type`）
 
 - 点击环境指标打开详情弹窗，type 1-6 分别对应温度、湿度、CO₂、PM2.5、风速、化学气体
-- 页签 UI：历史日均图表（ApexCharts）、当前数值、报警记录表格
+- 历史数据图表：通过 ApexCharts 展示指标的历史趋势数据
 
 ## 后端接口约定
 
@@ -150,6 +150,6 @@ gu_yue_vue/
 ## 实现现状与注意事项
 
 - ✅ **真实数据已接通**：环境指标、设备状态通过 REST + WebSocket 实时更新；设备切换调用真实后端接口。
-- ⚠️ **静态/演示数据**：所有 ECharts 图表、晴雨表日历、ApexCharts 详情图表、详情表格均使用硬编码或随机数据，尚未对接真实接口。
+- ⚠️ **静态/演示数据**：所有 ECharts 图表和晴雨表日历使用硬编码或随机数据；详情历史图表通过历史数据接口加载。
 - ⚠️ **遗留代码**：`HomeView.vue`、`AboutView.vue`、`HelloWorld.vue` 与空的 Vuex store 为脚手架遗留，当前未使用。
 - 状态管理未使用 Vuex，组件状态均存放在各组件 `data()` 中。

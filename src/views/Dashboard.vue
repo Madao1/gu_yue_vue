@@ -48,7 +48,7 @@
     <div v-if="modalVisible" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
         <button class="close-btn" @click="closeModal">×</button>
-        <DetailModal :type="modalType" :environment="environment" />
+        <DetailModal :type="modalType" />
       </div>
     </div>
   </div>
@@ -178,12 +178,12 @@ export default {
 .sgqyb-wrap {
   position: absolute;
   top: 95px;
-  left: -35px;
-  width: 970px;
+  left: 0;
+  width: 100%;
   height: 510px;
   z-index: 1;
-  transform: scale(0.95);
-  transform-origin: top left;
+  display: flex;
+  justify-content: center;
 }
 
 .modal-overlay {
