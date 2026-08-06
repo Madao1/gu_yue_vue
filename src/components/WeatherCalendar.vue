@@ -3,17 +3,23 @@
     <div class="header">
       <h2>施工现场晴雨表</h2>
       <div class="controls">
-        <select v-model="year">
+        <span class="threshold-tip">降雨量 ≥ {{ rainThreshold }}mm 记为雨天</span>
+        <select v-model="year" :disabled="loading">
           <option v-for="y in years" :key="y" :value="y">{{ y }}年</option>
         </select>
-        <select v-model="month">
+        <select v-model="month" :disabled="loading">
           <option v-for="m in 12" :key="m" :value="m">{{ m }}月</option>
         </select>
-        <button @click="renderCalendar">查询</button>
+        <button @click="renderCalendar" :disabled="loading">查询</button>
       </div>
     </div>
 
-    <table class="calendar-table">
+    <div v-if="loading" class="status-box">加载中...</div>
+    <div v-else-if="error" class="status-box">
+      <span>{{ error }}</span>
+      <button @click="renderCalendar">重试</button>
+    </div>
+    <table v-else class="calendar-table">
       <thead>
         <tr>
           <th>周一</th>
@@ -30,10 +36,8 @@
           <td v-for="(cell, cIndex) in row" :key="cIndex" :class="{ empty: !cell.day }">
             <div v-if="cell.day" class="day-cell" :class="{ highlight: cell.isToday }">
               <div class="date-num">{{ cell.day }}</div>
-              <div class="weather-icon">{{ cell.weather.icon }}</div>
-              <div class="temp-range">
-                <span class="temp-max">{{ cell.max }}°</span>/<span class="temp-min">{{ cell.min }}°</span>
-              </div>
+              <div class="weather-icon">{{ weatherIcon(cell.weather) }}</div>
+              <div class="temp">{{ formatTemp(cell.temperature) }}</div>
             </div>
           </td>
         </tr>
@@ -43,14 +47,12 @@
 </template>
 
 <script>
-const weatherTypes = [
-  { icon: '☀️', text: '晴', minTemp: 15, maxTemp: 28 },
-  { icon: '⛅', text: '多云', minTemp: 18, maxTemp: 26 },
-  { icon: '☁️', text: '阴', minTemp: 16, maxTemp: 22 },
-  { icon: '🌧️', text: '小雨', minTemp: 12, maxTemp: 18 },
-  { icon: '⛈️', text: '雷阵雨', minTemp: 14, maxTemp: 20 },
-  { icon: '🌦️', text: '阵雨', minTemp: 13, maxTemp: 19 }
-]
+import { getWeatherCalendar } from '@/api/weatherCalendar'
+
+const WEATHER_ICONS = {
+  晴: '☀️',
+  雨: '🌧️'
+}
 
 export default {
   name: 'WeatherCalendar',
@@ -59,7 +61,10 @@ export default {
     return {
       year: today.getFullYear(),
       month: today.getMonth() + 1,
-      calendarRows: []
+      calendarRows: [],
+      rainThreshold: '--',
+      loading: false,
+      error: ''
     }
   },
   computed: {
@@ -72,25 +77,41 @@ export default {
     this.renderCalendar()
   },
   methods: {
-    renderCalendar() {
+    async renderCalendar() {
+      this.loading = true
+      this.error = ''
+      try {
+        const data = await getWeatherCalendar(this.year, this.month)
+        this.rainThreshold = data.rainThreshold
+        this.buildRows(data.days)
+      } catch (e) {
+        this.error = e.message || '加载失败'
+        this.calendarRows = []
+      } finally {
+        this.loading = false
+      }
+    },
+    buildRows(days) {
       const firstDayOfWeek = new Date(this.year, this.month - 1, 1).getDay()
       const startOffset = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1
       const daysInMonth = new Date(this.year, this.month, 0).getDate()
       const today = new Date()
       const isCurrentMonth = this.year === today.getFullYear() && this.month === today.getMonth() + 1
+      const dayMap = new Map(days.map((d) => [d.day, d]))
 
       const cells = []
       for (let i = 0; i < startOffset; i++) {
         cells.push({ day: null })
       }
       for (let day = 1; day <= daysInMonth; day++) {
-        const weather = weatherTypes[Math.floor(Math.random() * weatherTypes.length)]
+        const rec = dayMap.get(day)
+        const weather = rec && rec.weather ? rec.weather : '--'
+        const temperature = rec && typeof rec.temperature === 'number' ? rec.temperature : null
         cells.push({
           day,
           isToday: isCurrentMonth && day === today.getDate(),
           weather,
-          max: weather.maxTemp + Math.floor(Math.random() * 4 - 2),
-          min: weather.minTemp + Math.floor(Math.random() * 4 - 2)
+          temperature
         })
       }
 
@@ -103,6 +124,15 @@ export default {
         rows.push(row)
       }
       this.calendarRows = rows
+    },
+    weatherIcon(weather) {
+      return WEATHER_ICONS[weather] || '❓'
+    },
+    formatTemp(temperature) {
+      if (temperature === null || temperature === undefined) {
+        return '--'
+      }
+      return `${Math.round(temperature)}°`
     }
   }
 }
@@ -145,6 +175,11 @@ export default {
   align-items: center;
 }
 
+.threshold-tip {
+  font-size: 12px;
+  color: #8caed8;
+}
+
 .controls select {
   padding: 5px 10px;
   font-size: 13px;
@@ -153,6 +188,12 @@ export default {
   border: 1px solid #3a5a9f;
   border-radius: 3px;
   cursor: pointer;
+}
+
+.controls select:disabled,
+.controls button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .controls button {
@@ -165,7 +206,32 @@ export default {
   font-size: 13px;
 }
 
-.controls button:hover {
+.controls button:hover:not(:disabled) {
+  background: #40a9ff;
+}
+
+.status-box {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #b0c4de;
+  font-size: 14px;
+}
+
+.status-box button {
+  padding: 6px 15px;
+  background: #1890ff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.status-box button:hover {
   background: #40a9ff;
 }
 
@@ -237,18 +303,10 @@ export default {
   text-align: center;
 }
 
-.temp-range {
-  font-size: 11px;
+.temp {
+  font-size: 12px;
   color: #b0c4de;
   width: 50%;
   text-align: center;
-}
-
-.temp-max {
-  color: #ff7875;
-}
-
-.temp-min {
-  color: #69b1ff;
 }
 </style>
