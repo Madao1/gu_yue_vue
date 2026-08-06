@@ -7,23 +7,47 @@
       </div>
     </div>
     <div class="afxt">
-      <p>施工：2 天</p>
-      <p>竣工倒计时：600 天</p>
+      <p>施工：{{ constructionDays === null ? '--' : constructionDays }} 天</p>
+      <p>竣工倒计时：{{ completionCountdownDays === null ? '--' : completionCountdownDays }} 天</p>
     </div>
   </div>
 </template>
 
 <script>
+import { getSafetyDays } from '@/api/safetyDays'
+
 export default {
   name: 'SafetyDays',
   data() {
     return {
-      days: 0
+      safetyDays: null,
+      constructionDays: null,
+      completionCountdownDays: null,
+      error: null
     }
   },
   computed: {
     digits() {
-      return String(this.days).padStart(4, '0').split('')
+      if (this.safetyDays === null) {
+        return ['-', '-', '-', '-']
+      }
+      return String(this.safetyDays).padStart(4, '0').split('')
+    }
+  },
+  mounted() {
+    this.loadSafetyDays()
+  },
+  methods: {
+    async loadSafetyDays() {
+      this.error = null
+      try {
+        const status = await getSafetyDays()
+        this.safetyDays = status.safetyDays
+        this.constructionDays = status.constructionDays
+        this.completionCountdownDays = status.completionCountdownDays
+      } catch (e) {
+        this.error = e.message || '安全运行数据加载失败'
+      }
     }
   }
 }
