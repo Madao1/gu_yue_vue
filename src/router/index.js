@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Dashboard from '@/views/Dashboard.vue'
-import WeatherPage from '@/views/WeatherPage.vue'
-import DetailModal from '@/views/DetailModal.vue'
 
 Vue.use(VueRouter)
+
+const Dashboard = () => import('@/views/Dashboard.vue')
+const WeatherPage = () => import('@/views/WeatherPage.vue')
+const DetailModal = () => import('@/views/DetailModal.vue')
 
 const routes = [
   {

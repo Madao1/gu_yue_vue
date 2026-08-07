@@ -26,7 +26,7 @@
           <WeatherCalendar />
         </div>
         <BoxPanel title="24H扬尘状况" class="cen-bottom">
-          <EchartPanel :option="dustOption" />
+          <EchartPanel v-if="dustOption" :option="dustOption" />
           <div v-if="dustLoading" class="dust-state">数据加载中...</div>
           <div v-else-if="dustError" class="dust-state error">{{ dustError }}</div>
           <div v-else-if="!dustHasData" class="dust-state">暂无近24小时扬尘数据</div>
@@ -36,13 +36,13 @@
       <!-- 右侧 -->
       <div class="con-right fr">
         <BoxPanel title="月雨水量" class="right-top">
-          <EchartPanel :option="rainOption" />
+          <EchartPanel v-if="rainOption" :option="rainOption" />
         </BoxPanel>
         <BoxPanel title="24H温度状况" class="right-center">
-          <EchartPanel :option="tempOption" />
+          <EchartPanel v-if="tempOption" :option="tempOption" />
         </BoxPanel>
         <BoxPanel title="24H噪声状况" class="right-bottom">
-          <EchartPanel :option="noiseOption" />
+          <EchartPanel v-if="noiseOption" :option="noiseOption" />
         </BoxPanel>
       </div>
     </div>
@@ -71,12 +71,9 @@ import EnvStatus from '@/components/EnvStatus.vue'
 import EquipStatus from '@/components/EquipStatus.vue'
 import SafetyDays from '@/components/SafetyDays.vue'
 import WeatherCalendar from '@/components/WeatherCalendar.vue'
-import EchartPanel from '@/components/EchartPanel.vue'
-import DetailModal from '@/views/DetailModal.vue'
-import getDustOption from '@/charts/chartDust24h'
-import getRainOption from '@/charts/chartRainMonth'
-import getTempOption from '@/charts/chartTemp24h'
-import getNoiseOption from '@/charts/chartNoise24h'
+
+const EchartPanel = () => import('@/components/EchartPanel.vue')
+const DetailModal = () => import('@/views/DetailModal.vue')
 
 export default {
   name: 'Dashboard',
@@ -92,10 +89,10 @@ export default {
   },
   data() {
     return {
-      dustOption: getDustOption([]),
-      rainOption: getRainOption(),
-      tempOption: getTempOption(),
-      noiseOption: getNoiseOption(),
+      dustOption: null,
+      rainOption: null,
+      tempOption: null,
+      noiseOption: null,
       dustLoading: true,
       dustError: '',
       dustHasData: false,
@@ -124,7 +121,7 @@ export default {
   },
   mounted() {
     this.loadSnapshot()
-    this.loadDustHistory()
+    this.loadChartOptions()
     this.client = createEnvironmentClient({
       onMessage: this.handleSnapshot,
       onConnect: () => { this.connected = true; this.error = null },
@@ -139,7 +136,27 @@ export default {
     }
   },
   methods: {
-    async loadDustHistory() {
+    async loadChartOptions() {
+      try {
+        const [dustChart, rainChart, tempChart, noiseChart] = await Promise.all([
+          import('@/charts/chartDust24h'),
+          import('@/charts/chartRainMonth'),
+          import('@/charts/chartTemp24h'),
+          import('@/charts/chartNoise24h')
+        ])
+        const getDustOption = dustChart.default
+        this.dustOption = getDustOption([])
+        this.rainOption = rainChart.default()
+        this.tempOption = tempChart.default()
+        this.noiseOption = noiseChart.default()
+        await this.loadDustHistory(getDustOption)
+      } catch (e) {
+        this.dustHasData = false
+        this.dustLoading = false
+        this.dustError = e.message || '图表加载失败'
+      }
+    },
+    async loadDustHistory(getDustOption) {
       this.dustLoading = true
       this.dustError = ''
       try {
