@@ -27,6 +27,9 @@
         </div>
         <BoxPanel title="24H扬尘状况" class="cen-bottom">
           <EchartPanel :option="dustOption" />
+          <div v-if="dustLoading" class="dust-state">数据加载中...</div>
+          <div v-else-if="dustError" class="dust-state error">{{ dustError }}</div>
+          <div v-else-if="!dustHasData" class="dust-state">暂无近24小时扬尘数据</div>
         </BoxPanel>
       </div>
 
@@ -55,7 +58,12 @@
 </template>
 
 <script>
-import { getCurrentSnapshot, isCurrentSnapshot, toggleDevice as requestDeviceToggle } from '@/api/environment'
+import {
+  getCurrentSnapshot,
+  getHourlyEnvironmentHistory,
+  isCurrentSnapshot,
+  toggleDevice as requestDeviceToggle
+} from '@/api/environment'
 import { createEnvironmentClient } from '@/api/websocket'
 import LayoutHeader from '@/components/LayoutHeader.vue'
 import BoxPanel from '@/components/BoxPanel.vue'
@@ -84,10 +92,13 @@ export default {
   },
   data() {
     return {
-      dustOption: getDustOption(),
+      dustOption: getDustOption([]),
       rainOption: getRainOption(),
       tempOption: getTempOption(),
       noiseOption: getNoiseOption(),
+      dustLoading: true,
+      dustError: '',
+      dustHasData: false,
       modalVisible: false,
       modalType: 'temperature',
       environment: null,
@@ -113,6 +124,7 @@ export default {
   },
   mounted() {
     this.loadSnapshot()
+    this.loadDustHistory()
     this.client = createEnvironmentClient({
       onMessage: this.handleSnapshot,
       onConnect: () => { this.connected = true; this.error = null },
@@ -127,6 +139,24 @@ export default {
     }
   },
   methods: {
+    async loadDustHistory() {
+      this.dustLoading = true
+      this.dustError = ''
+      try {
+        const data = await getHourlyEnvironmentHistory('dust')
+        const points = Array.isArray(data.points) ? data.points : []
+        this.dustHasData = points.some(point => {
+          return point && point.value !== null && point.value !== undefined && Number.isFinite(Number(point.value))
+        })
+        this.dustOption = getDustOption(points)
+      } catch (e) {
+        this.dustHasData = false
+        this.dustOption = getDustOption([])
+        this.dustError = e.message || '扬尘数据加载失败'
+      } finally {
+        this.dustLoading = false
+      }
+    },
     async loadSnapshot() {
       this.loading = true
       this.error = null
@@ -245,5 +275,24 @@ export default {
 
 .connection-status.error {
   background: rgba(220, 53, 69, 0.8);
+}
+
+.dust-state {
+  position: absolute;
+  top: 35px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 14px;
+  background: rgba(1, 14, 80, 0.2);
+  pointer-events: none;
+}
+
+.dust-state.error {
+  color: #ffb3b3;
 }
 </style>

@@ -21,7 +21,18 @@ export default {
   mounted() {
     this.initChart()
   },
+  watch: {
+    option: {
+      deep: true,
+      handler(option) {
+        if (this.chart) {
+          this.chart.setOption(option, true)
+        }
+      }
+    }
+  },
   beforeDestroy() {
+    window.removeEventListener('resize', this.resizeChart)
     if (this.chart) {
       this.chart.dispose()
       this.chart = null

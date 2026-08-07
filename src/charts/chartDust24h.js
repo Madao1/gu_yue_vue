@@ -1,50 +1,71 @@
 import * as echarts from 'echarts'
 
-export default function getOption() {
+function formatHour(timestamp) {
+  const match = String(timestamp || '').match(/T(\d{2}):(\d{2})/)
+  return match ? `${match[1]}:${match[2]}` : '--:--'
+}
+
+export default function getOption(points = []) {
+  const normalizedPoints = Array.isArray(points)
+    ? points.filter(point => point && typeof point === 'object')
+    : []
+  const xData = normalizedPoints.map(point => formatHour(point.timestamp))
+  const data = normalizedPoints.map(point => {
+    if (point.value === null || point.value === undefined) {
+      return null
+    }
+    const value = Number(point.value)
+    return Number.isFinite(value) ? value : null
+  })
+
   return {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      formatter(params) {
+        if (!params || params.length === 0) {
+          return ''
+        }
+        const item = params.find(param => param.value !== null && param.value !== undefined)
+        if (!item) {
+          return `${params[0].axisValue}<br/>暂无数据`
+        }
+        return `${item.axisValue}<br/>扬尘：${Number(item.value).toFixed(2)} mg/m³`
+      }
     },
     grid: {
       left: '3%',
       right: '5%',
       top: '8%',
-      bottom: '5%',
+      bottom: '8%',
       containLabel: true
     },
-    color: ['#a4d8cc', '#25f3e6'],
-    xAxis: [
-      {
-        type: 'category',
-        axisTick: { show: false },
-        boundaryGap: false,
-        axisLabel: {
-          textStyle: {
-            color: 'rgba(255,255,255,.6)',
-            fontSize: 12
-          },
-          lineStyle: {
-            color: 'rgba(255,255,255,.1)'
-          },
-          interval: 0,
-          formatter(params) {
-            return params.length > 4 ? params.substring(0, 4) + '...' : params
-          }
-        },
-        data: [
-          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-          '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'
-        ]
-      }
-    ],
+    xAxis: {
+      type: 'category',
+      axisTick: { show: false },
+      boundaryGap: false,
+      axisLine: {
+        lineStyle: {
+          color: 'rgba(255,255,255,.1)'
+        }
+      },
+      axisLabel: {
+        color: 'rgba(255,255,255,.6)',
+        fontSize: 12,
+        interval: 2
+      },
+      data: xData
+    },
     yAxis: {
       min: 0,
       type: 'value',
+      name: 'mg/m³',
+      nameTextStyle: {
+        color: 'rgba(255,255,255,.6)',
+        fontSize: 11
+      },
       axisLabel: {
-        textStyle: {
-          color: '#ccc',
-          fontSize: 12
-        }
+        color: '#ccc',
+        fontSize: 12
       },
       axisLine: {
         lineStyle: {
@@ -59,10 +80,14 @@ export default function getOption() {
     },
     series: [
       {
+        name: '扬尘',
+        type: 'line',
         lineStyle: {
           color: '#72b0f9'
         },
-        type: 'line',
+        itemStyle: {
+          color: '#72b0f9'
+        },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 0.8, [
             { offset: 0, color: 'rgba(129,197,255,.6)' },
@@ -70,7 +95,8 @@ export default function getOption() {
           ])
         },
         smooth: true,
-        data: [25, 26, 23, 20, 15, 16, 25, 23, 24, 20, 15, 16, 25, 26, 23, 20, 15, 16, 25, 23, 24, 20, 15, 16, 25]
+        connectNulls: false,
+        data
       }
     ]
   }

@@ -62,6 +62,31 @@ export async function getEnvironmentHistory(metric, { start, end, limit } = {}) 
   return data
 }
 
+export async function getHourlyEnvironmentHistory(metric) {
+  const res = await fetch(`/api/environment/history/${encodeURIComponent(metric)}/hourly`)
+
+  if (!res.ok) {
+    throw new Error(`请求失败：HTTP ${res.status}`)
+  }
+
+  const body = await res.json()
+
+  if (!body || typeof body !== 'object') {
+    throw new Error('响应格式不正确')
+  }
+
+  if (body.code !== 200) {
+    throw new Error(body.message || `请求失败：${body.code}`)
+  }
+
+  const data = body.data
+  if (!data || typeof data !== 'object' || Array.isArray(data) || typeof data.metric !== 'string' || !Array.isArray(data.points)) {
+    throw new Error('小时历史数据响应格式不正确')
+  }
+
+  return data
+}
+
 export async function toggleDevice(deviceKey) {
   const res = await fetch(`/api/environment/devices/${encodeURIComponent(deviceKey)}/toggle`, {
     method: 'POST'
