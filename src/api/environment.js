@@ -87,6 +87,31 @@ export async function getHourlyEnvironmentHistory(metric) {
   return data
 }
 
+export async function getDailyPrecipitationHistory() {
+  const res = await fetch('/api/environment/history/precipitation/daily')
+
+  if (!res.ok) {
+    throw new Error(`请求失败：HTTP ${res.status}`)
+  }
+
+  const body = await res.json()
+
+  if (!body || typeof body !== 'object') {
+    throw new Error('响应格式不正确')
+  }
+
+  if (body.code !== 200) {
+    throw new Error(body.message || `请求失败：${body.code}`)
+  }
+
+  const data = body.data
+  if (!data || typeof data !== 'object' || Array.isArray(data) || data.metric !== 'precipitation' || !Array.isArray(data.points)) {
+    throw new Error('每日降水数据响应格式不正确')
+  }
+
+  return data
+}
+
 export async function toggleDevice(deviceKey) {
   const res = await fetch(`/api/environment/devices/${encodeURIComponent(deviceKey)}/toggle`, {
     method: 'POST'

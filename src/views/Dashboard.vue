@@ -35,14 +35,23 @@
 
       <!-- 右侧 -->
       <div class="con-right fr">
-        <BoxPanel title="月雨水量" class="right-top">
+        <BoxPanel title="近31日雨水量" class="right-top">
           <EchartPanel v-if="rainOption" :option="rainOption" />
+          <div v-if="rainLoading" class="dust-state">数据加载中...</div>
+          <div v-else-if="rainError" class="dust-state error">{{ rainError }}</div>
+          <div v-else-if="!rainHasData" class="dust-state">暂无近31日降水数据</div>
         </BoxPanel>
         <BoxPanel title="24H温度状况" class="right-center">
           <EchartPanel v-if="tempOption" :option="tempOption" />
+          <div v-if="tempLoading" class="dust-state">数据加载中...</div>
+          <div v-else-if="tempError" class="dust-state error">{{ tempError }}</div>
+          <div v-else-if="!tempHasData" class="dust-state">暂无近24小时温度数据</div>
         </BoxPanel>
         <BoxPanel title="24H噪声状况" class="right-bottom">
           <EchartPanel v-if="noiseOption" :option="noiseOption" />
+          <div v-if="noiseLoading" class="dust-state">数据加载中...</div>
+          <div v-else-if="noiseError" class="dust-state error">{{ noiseError }}</div>
+          <div v-else-if="!noiseHasData" class="dust-state">暂无近24小时噪声数据</div>
         </BoxPanel>
       </div>
     </div>
@@ -60,6 +69,7 @@
 <script>
 import {
   getCurrentSnapshot,
+  getDailyPrecipitationHistory,
   getHourlyEnvironmentHistory,
   isCurrentSnapshot,
   toggleDevice as requestDeviceToggle
@@ -96,6 +106,15 @@ export default {
       dustLoading: true,
       dustError: '',
       dustHasData: false,
+      rainLoading: true,
+      rainError: '',
+      rainHasData: false,
+      tempLoading: true,
+      tempError: '',
+      tempHasData: false,
+      noiseLoading: true,
+      noiseError: '',
+      noiseHasData: false,
       modalVisible: false,
       modalType: 'temperature',
       environment: null,
@@ -145,15 +164,49 @@ export default {
           import('@/charts/chartNoise24h')
         ])
         const getDustOption = dustChart.default
+        const getRainOption = rainChart.default
+        const getTempOption = tempChart.default
+        const getNoiseOption = noiseChart.default
         this.dustOption = getDustOption([])
-        this.rainOption = rainChart.default()
-        this.tempOption = tempChart.default()
-        this.noiseOption = noiseChart.default()
-        await this.loadDustHistory(getDustOption)
+        this.rainOption = getRainOption([])
+        this.tempOption = getTempOption([])
+        this.noiseOption = getNoiseOption([])
+        await Promise.all([
+          this.loadDustHistory(getDustOption),
+          this.loadRainHistory(getRainOption),
+          this.loadMetricHistory(
+            'temperature',
+            getTempOption,
+            'tempOption',
+            'tempLoading',
+            'tempError',
+            'tempHasData',
+            '温度数据加载失败'
+          ),
+          this.loadMetricHistory(
+            'noise',
+            getNoiseOption,
+            'noiseOption',
+            'noiseLoading',
+            'noiseError',
+            'noiseHasData',
+            '噪声数据加载失败'
+          )
+        ])
       } catch (e) {
+        const message = e.message || '图表加载失败'
         this.dustHasData = false
         this.dustLoading = false
-        this.dustError = e.message || '图表加载失败'
+        this.dustError = message
+        this.rainHasData = false
+        this.rainLoading = false
+        this.rainError = message
+        this.tempHasData = false
+        this.tempLoading = false
+        this.tempError = message
+        this.noiseHasData = false
+        this.noiseLoading = false
+        this.noiseError = message
       }
     },
     async loadDustHistory(getDustOption) {
@@ -172,6 +225,42 @@ export default {
         this.dustError = e.message || '扬尘数据加载失败'
       } finally {
         this.dustLoading = false
+      }
+    },
+    async loadRainHistory(getRainOption) {
+      this.rainLoading = true
+      this.rainError = ''
+      try {
+        const data = await getDailyPrecipitationHistory()
+        const points = Array.isArray(data.points) ? data.points : []
+        this.rainHasData = points.some(point => {
+          return point && point.value !== null && point.value !== undefined && Number.isFinite(Number(point.value))
+        })
+        this.rainOption = getRainOption(points)
+      } catch (e) {
+        this.rainHasData = false
+        this.rainOption = getRainOption([])
+        this.rainError = e.message || '降水数据加载失败'
+      } finally {
+        this.rainLoading = false
+      }
+    },
+    async loadMetricHistory(metric, getOption, optionKey, loadingKey, errorKey, hasDataKey, errorMessage) {
+      this[loadingKey] = true
+      this[errorKey] = ''
+      try {
+        const data = await getHourlyEnvironmentHistory(metric)
+        const points = Array.isArray(data.points) ? data.points : []
+        this[hasDataKey] = points.some(point => {
+          return point && point.value !== null && point.value !== undefined && Number.isFinite(Number(point.value))
+        })
+        this[optionKey] = getOption(points)
+      } catch (e) {
+        this[hasDataKey] = false
+        this[optionKey] = getOption([])
+        this[errorKey] = e.message || errorMessage
+      } finally {
+        this[loadingKey] = false
       }
     },
     async loadSnapshot() {

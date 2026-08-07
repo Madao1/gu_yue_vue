@@ -1,8 +1,24 @@
 import * as echarts from 'echarts'
 
-export default function getOption() {
-  const xData = ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22']
-  const data = [25, 24, 23, 24, 26, 30, 32, 31, 33, 30, 28, 26]
+function formatHour(timestamp) {
+  const match = String(timestamp || '').match(/T(\d{2}):(\d{2})/)
+  return match ? `${match[1]}:${match[2]}` : '--:--'
+}
+
+function normalizeValue(value) {
+  if (value === null || value === undefined) {
+    return null
+  }
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
+
+export default function getOption(points = []) {
+  const normalizedPoints = Array.isArray(points)
+    ? points.filter(point => point && typeof point === 'object')
+    : []
+  const xData = normalizedPoints.map(point => formatHour(point.timestamp))
+  const data = normalizedPoints.map(point => normalizeValue(point.value))
 
   return {
     tooltip: {
@@ -11,9 +27,10 @@ export default function getOption() {
       backgroundColor: 'rgba(0,0,0,0.4)',
       padding: [8, 10],
       formatter(params) {
-        if (params.seriesName !== '') {
-          return params.name + ' ：  ' + params.value + ' 度'
+        if (!params || params.value === null || params.value === undefined) {
+          return `${params && params.name ? params.name : '--:--'}<br/>暂无数据`
         }
+        return `${params.name}：${Number(params.value).toFixed(2)} ℃`
       }
     },
     grid: {
@@ -100,22 +117,6 @@ export default function getOption() {
         zlevel: 2,
         barWidth: '20%',
         data
-      },
-      {
-        name: '',
-        type: 'bar',
-        xAxisIndex: 1,
-        zlevel: 1,
-        itemStyle: {
-          color: 'transparent',
-          borderWidth: 0,
-          shadowBlur: 10,
-          shadowColor: 'rgba(255,255,255,0.31)',
-          shadowOffsetX: 0,
-          shadowOffsetY: 2
-        },
-        barWidth: '20%',
-        data: [30, 30, 30, 30, 30]
       }
     ]
   }

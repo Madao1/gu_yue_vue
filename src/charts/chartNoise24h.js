@@ -1,28 +1,28 @@
-const raw = [
-  { month: '0', value: 5 },
-  { month: '2', value: 5 },
-  { month: '4', value: 6 },
-  { month: '6', value: 8 },
-  { month: '8', value: 18 },
-  { month: '10', value: 29 },
-  { month: '12', value: 28 },
-  { month: '14', value: 30 },
-  { month: '16', value: 28 },
-  { month: '18', value: 26 },
-  { month: '20', value: 19 },
-  { month: '22', value: 3 }
-]
+function formatHour(timestamp) {
+  const match = String(timestamp || '').match(/T(\d{2}):(\d{2})/)
+  return match ? `${match[1]}:${match[2]}` : '--:--'
+}
 
-const xAxisMonth = []
-const barData = []
-const lineData = []
-raw.forEach(item => {
-  xAxisMonth.push(item.month)
-  barData.push({ name: item.month, value: item.value })
-  lineData.push({ name: item.month, value: item.value })
-})
+function normalizeValue(value) {
+  if (value === null || value === undefined) {
+    return null
+  }
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
 
-export default function getOption() {
+export default function getOption(points = []) {
+  const normalizedPoints = Array.isArray(points)
+    ? points.filter(point => point && typeof point === 'object')
+    : []
+  const xAxisMonth = normalizedPoints.map(point => formatHour(point.timestamp))
+  const xAxisLabelInterval = Math.max(Math.ceil(xAxisMonth.length / 8) - 1, 0)
+  const barData = normalizedPoints.map(point => ({
+    name: formatHour(point.timestamp),
+    value: normalizeValue(point.value)
+  }))
+  const lineData = barData.map(point => ({ ...point }))
+
   return {
     title: '',
     grid: {
@@ -36,7 +36,17 @@ export default function getOption() {
       trigger: 'axis',
       axisPointer: { type: 'none' },
       formatter(params) {
-        return params[0].data.name + '<br/>' + '次数: ' + params[1].data.value + '次'
+        if (!params || params.length === 0) {
+          return ''
+        }
+        const point = params.find(item => {
+          return item && item.data && item.data.value !== null && item.data.value !== undefined
+        })
+        const hour = params[0].axisValue || '--:--'
+        if (!point) {
+          return `${hour}<br/>暂无数据`
+        }
+        return `${hour}<br/>噪声：${Number(point.data.value).toFixed(2)} dB`
       }
     },
     xAxis: [
@@ -58,7 +68,8 @@ export default function getOption() {
         },
         axisTick: { show: false },
         axisLabel: {
-          interval: 0,
+          interval: xAxisLabelInterval,
+          hideOverlap: true,
           textStyle: { color: '#b6b5ab', fontSize: 12 }
         }
       }
@@ -88,7 +99,7 @@ export default function getOption() {
     color: ['#e54035'],
     series: [
       {
-        name: '次',
+        name: 'dB',
         type: 'pictorialBar',
         xAxisIndex: 1,
         barCategoryGap: '-40%',
